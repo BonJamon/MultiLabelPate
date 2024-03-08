@@ -32,6 +32,7 @@ batch_size = 32
 result_path = 'results/'
 INDIVIDUAL_TEACHER_THRESHOLD = 0.5
 t = 4
+delta = 1.0 / (10**6)
 
     
 def get_dp(rdps, orders, delta):
@@ -68,7 +69,6 @@ if __name__ == '__main__':
     #Get Data
     test_data, train_data = NusDataset.preprocessing()
     data_length = len(test_data)
-    delta = 1.0 / len(train_data)
     no_classes = len(test_data.classes)
     #Get Labels and Metrics
     labels = Helperclass.get_labels()
