@@ -6,11 +6,11 @@ from torch import nn, optim
 import torch.nn.functional as F
 import time, os, random
 from Helper import NusDataset, Helperclass
-from CNN_Networks import Dummy
+from CNN_Network import Dummy
 from torch.utils.data import Subset
 from torchmetrics.classification import MultilabelAveragePrecision, MultilabelRecall, MultilabelPrecision, MultilabelF1Score, MultilabelAccuracy
 import pickle
-from CNN_Networks import Resnext50
+from CNN_Network import Resnext50
 import io
 from collections import OrderedDict
 from multilabelpate.Aggregation import aggregate_gaussian

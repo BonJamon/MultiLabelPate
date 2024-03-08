@@ -8,19 +8,21 @@ import time, os, random
 from Aggregation import calc_adaptive_threshold
 
 from Helper import NusDataset, Helperclass
-from CNN_Networks import Dummy
+from CNN_Network import Dummy
 from torch.utils.data import Subset
 from torchmetrics.classification import MultilabelAveragePrecision, MultilabelRecall, MultilabelPrecision, MultilabelF1Score, MultilabelAccuracy
 import pickle
-from CNN_Networks import Resnext50
+from CNN_Network import Resnext50
 import io
 from collections import OrderedDict
+from multilabelpate.Aggregation import aggregate_gaussian
 
 # Fix all seeds to make experiments reproducible
-torch.manual_seed(2022)
-torch.cuda.manual_seed(2022)
-np.random.seed(2022)
-random.seed(2022)
+seed=2022
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+np.random.seed(seed)
+random.seed(seed)
 torch.backends.cudnn.deterministic = True
 
 #threshold_ensemble = "adaptive"
@@ -30,30 +32,7 @@ np.set_printoptions(threshold=np.inf)
 batch_size = 32
 result_path = 'results/'
 checkpoint_path = 'checkpoints/evaluationTeacherPerformance_allmetrics/'
-
-
-
-def aggregate_gaussian(predictions,
-                    threshold_ensemble,
-                    noise_scale_ensemble,
-                    n_classes,
-                    INDIVIDUAL_TEACHER_THRESHOLD,
-                    debug=False):
-    #brauche keine Privacy-related funktionen hier
-    n_teachers = predictions.shape[0]
-    predictions_binary = np.where(predictions > INDIVIDUAL_TEACHER_THRESHOLD, 1.0, 0.0)
-    #make histogramm out of teacher votes
-    predictions_raw = np.sum(predictions_binary, axis=0)
-    n_datapoints = predictions.shape[1]
-    if threshold_ensemble == 'adaptive': #Das geht? Is ja sonst ne Zahl
-        threshold_ensemble = calc_adaptive_threshold(predictions=predictions_raw)   
-    threshold_ensemble = np.expand_dims(threshold_ensemble, axis=1)
-    threshold_expanded = threshold_ensemble
-    for i in range(n_classes-1):
-        threshold_expanded = np.hstack((threshold_expanded,threshold_ensemble))
-    result = np.where(predictions_raw > threshold_expanded, 1.0, 0.0) #threshhold for each datapoint
-    return torch.from_numpy(result)
-
+orders = np.array([1.000001,2,4,8,16,32])#irrelevant here
 
 
 
@@ -68,9 +47,10 @@ def get_aggregated_preds(testloader, num_teachers, no_classes, data_length, save
         model.to(device)
         predictions = Helperclass.predict(model, testloader, device)
         preds[i] = predictions
-    
-    aggregated_preds_adapt = aggregate_gaussian(preds.numpy(), 'adaptive', noise_scale_ensemble, no_classes, INDIVIDUAL_TEACHER_THRESHOLD=0.5)
-    aggregated_preds_fixed = aggregate_gaussian(preds.numpy(), threshold_ensemble_fixed, noise_scale_ensemble, no_classes, INDIVIDUAL_TEACHER_THRESHOLD=0.5)
+
+    preds_binary = np.where(preds.numpy() > 0.5, 1.0, 0.0)
+    aggregated_preds_adapt = torch.from_numpy(aggregate_gaussian(preds_binary, "adaptive", 0.0, orders, T=no_classes,seed=seed,ignore_privacy=True))
+    aggregated_preds_adapt = torch.from_numpy(aggregate_gaussian(preds_binary, threshold_ensemble_fixed, 0.0, orders, T=no_classes,seed=seed,ignore_privacy=True))
     return preds, aggregated_preds_adapt, aggregated_preds_fixed
 
 class CPU_Unpickler(pickle.Unpickler):
