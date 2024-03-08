@@ -1,0 +1,9 @@
+setup.py
+MultiLabelPate.egg-info/PKG-INFO
+MultiLabelPate.egg-info/SOURCES.txt
+MultiLabelPate.egg-info/dependency_links.txt
+MultiLabelPate.egg-info/top_level.txt
+multilabelpate/Aggregation.py
+multilabelpate/Privacy.py
+multilabelpate/__init__.py
+multilabelpate/t_approx.py

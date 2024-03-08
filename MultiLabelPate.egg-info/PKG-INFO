@@ -1,0 +1,5 @@
+Metadata-Version: 2.1
+Name: MultiLabelPate
+Version: 1.0
+Summary: Generalization of the PATE Framework to multi-label
+Author: Benjamin Friedl, Anika Hannemann
