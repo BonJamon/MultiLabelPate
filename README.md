@@ -1,4 +1,4 @@
-#Differentially Private Multi-label Learning Is Harder Than You'd Think
+# Differentially Private Multi-label Learning Is Harder Than You'd Think
 
 This repository contains the code for the paper "Differentially Private Multi-label Learning Is Harder Than You'd Think" by Benjamin Friedl and Anika Hannemann. 
 
